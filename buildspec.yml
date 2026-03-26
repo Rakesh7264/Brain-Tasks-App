@@ -1,0 +1,5 @@
+post_build:
+  commands:
+    - aws eks update-kubeconfig --name brain-tasks-cluster
+    - kubectl apply -f deployment.yaml
+    - kubectl apply -f service.yaml
