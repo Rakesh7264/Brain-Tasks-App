@@ -1,5 +1,21 @@
-post_build:
-  commands:
-    - aws eks update-kubeconfig --name brain-tasks-cluster
-    - kubectl apply -f deployment.yaml
-    - kubectl apply -f service.yaml
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Installing dependencies...
+
+  pre_build:
+    commands:
+      - echo Pre-build phase...
+
+  build:
+    commands:
+      - echo Build started...
+
+  post_build:
+    commands:
+      - echo Deploying to EKS...
+      - aws eks update-kubeconfig --name brain-tasks-cluster
+      - kubectl apply -f deployment.yaml
+      - kubectl apply -f service.yaml
