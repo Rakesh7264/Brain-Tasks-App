@@ -1,19 +1,5 @@
 post_build:
-    commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker image to Registry...
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo Updating Kubeconfig...
-      - aws eks update-kubeconfig --name brain-tasks-cluster
-      - echo Deploying to Kubernetes...
-      - kubectl apply -f deployment.yaml
-      - kubectl apply -f service.yaml
-      # This line creates the 'tag' CodePipeline is looking for
-      - printf '[{"name":"brain-tasks-container","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
-
-artifacts:
-  files:
-    - deployment.yaml
-    - service.yaml
-    - imagedefinitions.json
+  commands:
+    - aws eks update-kubeconfig --name brain-tasks-cluster
+    - kubectl apply -f deployment.yaml
+    - kubectl apply -f service.yaml
