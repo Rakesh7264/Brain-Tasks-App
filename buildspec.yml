@@ -12,7 +12,6 @@ phases:
     commands:
       - echo Installing dependencies...
       - yum install -y docker
-      - service docker start
 
   pre_build:
     commands:
