@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: brain-tasks-container
-        image: docker.io/rakesh7264/brain-tasks-app:latest
+        image: 202197228225.dkr.ecr.eu-central-1.amazonaws.com/brain-tasks-repo:latest
         ports:
         - containerPort: 3000
         resources:
