@@ -37,7 +37,7 @@ phases:
       - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $CLUSTER_NAME
 
       - echo Updating deployment image...
-      - kubectl set image deployment/brain-tasks-deployment app-container=$REPOSITORY_URI:$IMAGE_TAG
+      - kubectl set image deployment/brain-tasks-deployment brain-tasks-container=$REPOSITORY_URI:$IMAGE_TAG
       
       - echo apply deployment.yaml file...
       - kubectl apply -f deployment.yaml
