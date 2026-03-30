@@ -1,22 +1,55 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_DEFAULT_REGION: eu-central-1
+    CLUSTER_NAME: brain-tasks-cluster
+    IMAGE_REPO_NAME: brain-tasks-repo
+    IMAGE_TAG: latest
+
 phases:
   install:
     commands:
       - echo Installing dependencies...
+      - yum install -y docker
+      - service docker start
 
   pre_build:
     commands:
-      - echo Pre-build phase...
+      - echo Logging in to Amazon ECR...
+      - aws sts get-caller-identity
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
 
   build:
     commands:
-      - echo Build started...
-      - aws sts get-caller-identity
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
 
   post_build:
     commands:
-      - echo Deploying to EKS...
-      - aws eks update-kubeconfig --region eu-central-1 --name brain-tasks-cluster
-      - kubectl apply -f deployment.yaml
+      - echo Pushing the Docker image...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+
+      - echo Updating kubeconfig...
+      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $CLUSTER_NAME
+
+      - echo Updating deployment image...
+      - kubectl set image deployment/brain-tasks-deployment app-container=$REPOSITORY_URI:$IMAGE_TAG
+	  
+	  - echo Updating deployment image completed...
+	  
+	  - echo apply deployment.yaml file...
+	  - kubectl apply -f deployment.yaml
+	  
+	  - echo applying deployment.yaml file completed...
+	  
+	  - echo apply service.yaml file...
       - kubectl apply -f service.yaml
+	  
+	  - echo applying service.yaml file completed...
+	  
+      - echo Deployment completed
